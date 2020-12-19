@@ -113,8 +113,8 @@ int Machine::check(){
                 it2=find(this->Q.begin(), this->Q.end(), this->delta[4][i]);
                 if(it==this->Q.end() || it2==this->Q.end())
                     return 0;
-                if(this->delta[0][i]==this->delta[4][i] && this->delta[3][i]=="**")
-                    return 0;
+                // if(this->delta[0][i]==this->delta[4][i] && this->delta[3][i]=="**")
+                //     return 0;
                 if(this->delta[1][i].length()!=num_int || this->delta[2][i].length()!=num_int || this->delta[3][i].length()!=num_int)      
                     return 0;  
             }

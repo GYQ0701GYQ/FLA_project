@@ -8,7 +8,7 @@
 #include "machine.h"
 int ini_machine(Machine &machine){
     ifstream file;
-    file.open("../programs/example.tm",ios::in);
+    file.open("../programs/case2.tm",ios::in);
     if(!file.is_open()){
         cout<<"file is not found or the read process fails"<<endl;
         return 0; //exit
@@ -51,8 +51,8 @@ int main(void)
         cout<<"Definition illegal"<<endl;
         return 0; //TM定义不合法
     }
-
-    string test_str="010110_",temp_push,temp_cmp;
+    int sss=0;
+    string test_str="111x111=11",temp_push,temp_cmp;
     vector<vector<string>> tape;
     vector<string> temp_tape;
     vector<int> pos;
@@ -68,52 +68,70 @@ int main(void)
     }
     for(int i=0;i<test_str.length();i++){
         temp_push.push_back(test_str[i]);
-        tape[0].push_back(temp_push);
-        for(int j=1;j<tape_num;j++)
-            tape[j].push_back(machine.B);
-        temp_push="";
+        vector<string>::iterator input_letter=find(machine.S.begin(), machine.S.end(), temp_push);
+        if(input_letter!=machine.S.end()){
+            tape[0].push_back(temp_push);
+            for(int j=1;j<tape_num;j++)
+                tape[j].push_back(machine.B);
+            temp_push="";
+        }
+        else{
+            cout<<"Input Error"<<endl;
+            return 0;
+        }
     }
     if(tape[0].size()<=0) //无待解析内容
         return 0;
-
-    vector<string>::iterator it = machine.F.end();
-    while(it==machine.F.end()){
-        for(int i=0;i<tape.size();i++){
-            cout<<"head:"<<pos[i]<<"  ";
+    else{
+        for(int j=0;j<tape_num;j++)
+            tape[j].push_back(machine.B);
+    }
+    for(int i=0;i<tape.size();i++){
+            cout<<"初始 head:"<<pos[i]<<"  ";
             copy (tape[i].begin(), tape[i].end(), ostream_iterator<string> (cout, " "));
             cout<<endl;
         }
-        cout<<endl;
+    cout<<endl;
+    vector<string>::iterator it = machine.F.end();
+    while(it==machine.F.end()){
+        // sss++;
         temp_cmp = "";
         for(int j=0;j<tape_num;j++) //获取当前全部读头的内容
             temp_cmp += tape[j][pos[j]];
         for(int i=0;i<machine.delta[0].size();i++){
             if(current_state==machine.delta[0][i] && temp_cmp==machine.delta[1][i]){  //和第i个转移语句匹配
-                cout<<"经过一次移动"<<current_state<<"   "<<temp_cmp<<"  ";
+                cout<<"匹配的移动语句："<<machine.delta[0][i]<<"  "<<machine.delta[1][i]<<"  "<<machine.delta[2][i]<<"  "<<machine.delta[3][i]<<"  "<<machine.delta[4][i]<<"  "<<endl;
                 current_state = machine.delta[4][i];
                 for(int k=0;k<tape_num;k++){
-                    // tape[k][pos[k]] = machine.delta[2][i][k];
                     if(pos[k]==tape[k].size()-1 && machine.delta[3][i][k] == 'r' ){
-                        string aaa;
-                        aaa.push_back(machine.delta[2][i][k]);
+                        // string aaa;
+                        // aaa.push_back(machine.delta[2][i][k]);
                         tape[k].push_back(machine.B);
                     }
-                    if(pos[k]>=1 && pos[k]<=tape[k].size()-2)
+                    if(pos[k]>=0 && pos[k]<=tape[k].size()-1)
                         tape[k][pos[k]] = machine.delta[2][i][k];
-                    else if(pos[k]==0 && machine.delta[3][i][k] == 'l')
+                    if(pos[k]==0 && machine.delta[3][i][k] == 'l')  //head=0要向左移
                         break;
-                    cout<<machine.delta[2][i][k];
                     if(machine.delta[3][i][k] == 'r')
                         pos[k]++;
                     else if(machine.delta[3][i][k] == 'l')
                         pos[k]--;
                 }
-                cout<<"   "<<current_state<<endl;
+                it = find(machine.F.begin(), machine.F.end(), current_state);
+                break;
+            }else if(i==machine.delta[0].size()-1){
+                current_state="reject";
                 it = find(machine.F.begin(), machine.F.end(), current_state);
                 break;
             }
             // cout<<temp_cmp<<endl;
         }
+        for(int i=0;i<tape.size();i++){
+            cout<<"head"<<i+1<<":"<<pos[i]<<"  "<<current_state;
+            copy (tape[i].begin(), tape[i].end(), ostream_iterator<string> (cout, " "));
+            cout<<endl;
+        }
+        cout<<endl;
     }
     // copy (tape1.begin(), tape1.end(), ostream_iterator<string> (cout, "   "));
     // cout<<endl;
