@@ -6,11 +6,13 @@
 #include <iterator> // for std::ostream_iterator
 #include <algorithm>  // for std::copy
 #include "machine.h"
-int ini_machine(Machine &machine){
+int ini_machine(Machine &machine, string input_tm){
     ifstream file;
-    file.open("../programs/case2.tm",ios::in);
+    string name = "../programs/"+input_tm;
+    const char *aaa = (char*)name.c_str();
+    file.open(aaa,ios::in);
     if(!file.is_open()){
-        cout<<"file is not found or the read process fails"<<endl;
+        cout<<"File is not found or the read process fails"<<endl;
         return 0; //exit
     }
     string strLine;
@@ -38,12 +40,23 @@ int ini_machine(Machine &machine){
 }
 
 
-int main(void)
+int main(int argc,char** argv)
 {
+    string input_tm, input_str;
+    if(argc>=2 && argc<=3){
+        input_tm = argv[1];
+        if(argc>=3){
+            input_str = argv[2];
+        }
+    }
+    else{
+        cout<<"Insufficient parameters or too many parameters"<<endl;
+        return 0;
+    }
     Machine machine;
-    int ini_result = ini_machine(machine);  //读取tm文件 初始化machine
+    int ini_result = ini_machine(machine, input_tm);  //读取tm文件 初始化machine
     if(ini_result==0){ //TM初始化失败
-        cout<<"Ini failed"<<endl;
+        cout<<"Definition error"<<endl;
         return 0;
     }    
     int check_result = machine.check();
@@ -52,7 +65,7 @@ int main(void)
         return 0; //TM定义不合法
     }
     int sss=0;
-    string test_str="111x111=11",temp_push,temp_cmp;
+    string temp_push,temp_cmp;
     vector<vector<string>> tape;
     vector<string> temp_tape;
     vector<int> pos;
@@ -66,8 +79,8 @@ int main(void)
         tape.push_back(temp_tape);
         pos.push_back(1);  //初始pos跳过最左端的blank
     }
-    for(int i=0;i<test_str.length();i++){
-        temp_push.push_back(test_str[i]);
+    for(int i=0;i<input_str.length();i++){
+        temp_push.push_back(input_str[i]);
         vector<string>::iterator input_letter=find(machine.S.begin(), machine.S.end(), temp_push);
         if(input_letter!=machine.S.end()){
             tape[0].push_back(temp_push);
@@ -103,9 +116,7 @@ int main(void)
                 cout<<"匹配的移动语句："<<machine.delta[0][i]<<"  "<<machine.delta[1][i]<<"  "<<machine.delta[2][i]<<"  "<<machine.delta[3][i]<<"  "<<machine.delta[4][i]<<"  "<<endl;
                 current_state = machine.delta[4][i];
                 for(int k=0;k<tape_num;k++){
-                    if(pos[k]==tape[k].size()-1 && machine.delta[3][i][k] == 'r' ){
-                        // string aaa;
-                        // aaa.push_back(machine.delta[2][i][k]);
+                    if(pos[k]==tape[k].size()-1 && machine.delta[3][i][k] == 'r' ){  //为tape尾部追加一位
                         tape[k].push_back(machine.B);
                     }
                     if(pos[k]>=0 && pos[k]<=tape[k].size()-1)
