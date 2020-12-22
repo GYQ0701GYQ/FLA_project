@@ -14,7 +14,7 @@ int ini_machine(Machine &machine, string input_tm){
     if(!file.is_open()){
         // cout<<"File is not found or the read process fails"<<endl;
         fprintf(stderr,"TM file is not found or the read process failed\n");
-        exit(1); //exit
+        return 0; //exit
     }
     string strLine;
     while(getline(file,strLine))
@@ -44,7 +44,6 @@ int ini_para(int &verbose, string &input_tm, string &input_str, string &input_pa
     switch(argc){
         case 1 :
             fprintf(stdout,"usage: turing [-v|--verbose] [-h|--help] <tm> <input>\n");
-            exit(1);
             return 0;
         case 2 :
             input_para=argv[1];
@@ -85,11 +84,11 @@ int main(int argc,char** argv)
 {
     string input_tm, input_str,input_para;
     int verbose=0;
+    Machine machine;
     int para_result = ini_para(verbose,input_tm,input_str,input_para,argc,argv);
-    if(para_result==0){ //参数解析
+    if(para_result==0){ //参数解析失败
         exit(1);
     }   
-    Machine machine;
     int ini_result = ini_machine(machine, input_tm);  //读取tm文件 初始化machine
     if(ini_result==0){ //TM初始化失败
         fprintf(stderr,"syntax error\n");
@@ -110,12 +109,12 @@ int main(int argc,char** argv)
     int tape_num;
     ss<<machine.num;
     ss>>tape_num;
-    temp_tape.push_back("_");  //每个tape最左端设置Blank
+    temp_tape.push_back(machine.B);  //每个tape最左端设置Blank
     for(int j=0;j<tape_num;j++){
         tape.push_back(temp_tape);
-        pos.push_back(1);  //初始pos跳过最左端的blank
+        pos.push_back(1);  //初始head从1开始，跳过最左blank
     }
-    if(verbose==1)
+    if(verbose==1)  // verbose模式下打印input
         cout<<"Input: "<<input_str<<endl;
     for(int i=0;i<input_str.length();i++){
         temp_push.push_back(input_str[i]);
@@ -142,21 +141,17 @@ int main(int argc,char** argv)
             exit(1);
         }
     }
-    cout<<"==================== RUN ===================="<<endl;
+    if(verbose==1)
+        cout<<"==================== RUN ===================="<<endl;
     
     // handle tape0
     if(tape[0].size()<=0) //无待解析内容
         return 0;
     else{
         for(int j=0;j<tape_num;j++)
-            tape[j].push_back(machine.B);
+            tape[j].push_back(machine.B);  //对每个tape末尾再压一个blank
     }
-    // for(int i=0;i<tape.size();i++){
-    //         cout<<"初始 head:"<<pos[i]<<"  ";
-    //         copy (tape[i].begin(), tape[i].end(), ostream_iterator<string> (cout, " "));
-    //         cout<<endl;
-    //     }
-    // cout<<endl;
+    // 直到走到某个终止状态则停机
     vector<string>::iterator it = machine.F.end();
     int step=0;
     if(verbose==1){
@@ -181,7 +176,7 @@ int main(int argc,char** argv)
         cout<<"State  : "<<current_state<<endl<<"---------------------------------------------"<<endl;
     }
 
-    while(it==machine.F.end()){
+    while(it==machine.F.end() && step!=300){  //step=300是为了测试时防止死循环
         temp_cmp = "";
         for(int j=0;j<tape_num;j++) //获取当前全部读头的内容
             temp_cmp += tape[j][pos[j]];
@@ -212,13 +207,7 @@ int main(int argc,char** argv)
             }
             // cout<<temp_cmp<<endl;
         }
-        // for(int i=0;i<tape.size();i++){
-        //     cout<<"head"<<i+1<<":"<<pos[i]<<"  "<<current_state;
-        //     copy (tape[i].begin(), tape[i].end(), ostream_iterator<string> (cout, " "));
-        //     cout<<endl;
-        // }
-        // cout<<endl;
-        if(verbose==1){
+        if(verbose==1){ // verbose模式下，每一步都输出所有tape的状态
         cout<<"Step   : "<<step<<endl;
         for(int i=0;i<tape.size();i++){
             cout<<"Index"<<i<<" : ";
@@ -240,7 +229,7 @@ int main(int argc,char** argv)
         cout<<"State  : "<<current_state<<endl<<"---------------------------------------------"<<endl;
         }
     }
-    switch(verbose){
+    switch(verbose){  //打印最终结果
         case 1 :
             cout<<"Result: ";
             for(int i=0;i<tape[0].size();i++)
@@ -252,9 +241,10 @@ int main(int argc,char** argv)
             for(int i=0;i<tape[0].size();i++)
                 if(tape[0][i] != machine.B)
                     cout<<tape[0][i];
+            cout<<endl;
             break;
         default:
             break;
     }
-    return 1;
+    exit(0);
 }

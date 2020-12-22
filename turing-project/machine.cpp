@@ -93,12 +93,6 @@ int Machine::check(){
             return 0;
         // else cout<<"Yep!"<<endl;
     }
-     // string a="4";
-    // stringstream s1;
-    // int c;
-    // s1<<a;
-    // s1>>c;
-    // cout<<c<<endl;
     stringstream ss;
     int num_int=-1;
     if(this->num != ""){
