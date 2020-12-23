@@ -1,7 +1,7 @@
 ; This example program checks 1^m x 1^n = 1^mn
 
 ; the finite set of states
-#Q = {start,A,B,C,D,E,cmp,accept,accept2,accept3,accept4,halt_accept,reject,reject2,reject3,reject4,reject5,halt_reject}
+#Q = {start,A,B,C,D,E,cmp,accept,accept2,accept3,accept4,halt_accept,reject,reject1,reject2,reject3,reject4,reject5,halt_reject}
 
 ; the finite set of input symbols
 #S = {1,0,x,=}
@@ -58,14 +58,22 @@ accept3 __ u_ r* accept4
 accept4 __ e_ ** halt_accept
 
 ; State reject*: write 'false' on 1st tape
-reject 11 __ rr reject
-reject x1 __ rr reject
-reject =1 __ rr reject
-reject 1_ __ r* reject
-reject x_ __ r* reject
-reject =_ __ r* reject
-reject _1 __ *l reject  ; erase
-reject __ f_ r* reject2
+reject 11 11 ll reject
+reject x1 x1 ll reject
+reject =1 =1 ll reject
+reject 1_ 1_ l* reject
+reject x_ x_ l* reject
+reject =_ =_ l* reject
+reject _1 _1 *l reject
+reject __ __ rr reject1
+reject1 11 __ rr reject1
+reject1 x1 __ rr reject1
+reject1 =1 __ rr reject1
+reject1 1_ __ r* reject1
+reject1 x_ __ r* reject1
+reject1 =_ __ r* reject1
+reject1 _1 __ *l reject1
+reject1 __ f_ r* reject2
 reject2 __ a_ r* reject3
 reject3 __ l_ r* reject4
 reject4 __ s_ r* reject5

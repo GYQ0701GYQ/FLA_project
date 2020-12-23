@@ -151,7 +151,7 @@ int main(int argc,char** argv)
         for(int j=0;j<tape_num;j++)
             tape[j].push_back(machine.B);  //对每个tape末尾再压一个blank
     }
-    // 直到走到某个终止状态则停机
+    
     vector<string>::iterator it = machine.F.end();
     int step=0;
     if(verbose==1){
@@ -168,14 +168,18 @@ int main(int argc,char** argv)
             }
             cout<<endl;
             cout<<"Head"<<i<<"  : ";
-            for(int j=0;j<tape[i].size()-1;j++){
+            for(int j=0;j<pos[i];j++){
                 cout<<"  ";
             }
-            cout<<"^"<<endl;
+            cout<<"^ ";
+            for(int j=pos[i];j<tape[i].size();j++){
+                cout<<"  ";
+            }
+            cout<<endl;
         }
         cout<<"State  : "<<current_state<<endl<<"---------------------------------------------"<<endl;
     }
-
+    // 直到走到某个终止状态则停机
     while(it==machine.F.end() && step!=300){  //step=300是为了测试时防止死循环
         temp_cmp = "";
         for(int j=0;j<tape_num;j++) //获取当前全部读头的内容
@@ -221,10 +225,14 @@ int main(int argc,char** argv)
             }
             cout<<endl;
             cout<<"Head"<<i<<"  : ";
-            for(int j=0;j<tape[i].size()-1;j++){
+            for(int j=0;j<pos[i];j++){
                 cout<<"  ";
             }
-            cout<<"^"<<endl;
+            cout<<"^ ";
+            for(int j=pos[i];j<tape[i].size();j++){
+                cout<<"  ";
+            }
+            cout<<endl;
         }
         cout<<"State  : "<<current_state<<endl<<"---------------------------------------------"<<endl;
         }
